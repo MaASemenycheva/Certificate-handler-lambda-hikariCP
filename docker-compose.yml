@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  springBootApp:
+    image: lk
+    container_name: docker-postgres-app
+    environment:
+      - POSTGRES_HOST=docker-postgres-db
+    ports:
+      - "8081:8081"
+    networks:
+      - network
+    depends_on:
+      - postgresDb
+    restart: on-failure
+
+  postgresDb:
+    image: postgres:13.2
+    container_name: docker-postgres-db
+    ports:
+      - "5432:5432"
+    networks:
+      - network
+    volumes:
+      - volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=spring_boot_postgres_db
+networks:
+  network:
+
+volumes:
+  volume:
