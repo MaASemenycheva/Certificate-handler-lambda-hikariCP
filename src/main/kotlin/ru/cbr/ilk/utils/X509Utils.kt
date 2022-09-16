@@ -2,6 +2,7 @@ package ru.cbr.ilk.utils
 
 import mu.KotlinLogging
 import java.io.ByteArrayInputStream
+import java.lang.Byte.decode
 import java.security.cert.CertificateException
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -12,14 +13,11 @@ val x509CertificateFactory: CertificateFactory = CertificateFactory.getInstance(
 private val logger = KotlinLogging.logger{}
 
 fun base64toX509(encodedCert: String) = encodedCert
-    .let(
-        Base64.getDecoder()::decode)
-//    .let {
-//        try {
-//            ::ByteArrayInputStream
-//        } catch (e: Exception) {
-//            null
-//        }
+
+    .let (Base64.getDecoder()::decode)
+//    .let{try {
+//        Base64.getDecoder().decode(it)
+//    } catch (e: IllegalArgumentException) {}
 //    }
     .let(::ByteArrayInputStream)
 //    .let {

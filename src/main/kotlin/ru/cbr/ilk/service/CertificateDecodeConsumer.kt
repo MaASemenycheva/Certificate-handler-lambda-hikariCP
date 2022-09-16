@@ -1,5 +1,6 @@
 package ru.cbr.ilk.service
 
+import io.micrometer.core.instrument.MeterRegistry
 import mu.KotlinLogging
 import ru.cbr.ilk.config.Configurer
 import ru.cbr.ilk.model.dto.CertificateDecode
@@ -8,7 +9,12 @@ import java.sql.Timestamp
 
 private val logger = KotlinLogging.logger {}
 
-class CertificateDecodeConsumer (configurer: Configurer, connectionProvider: () -> Connection) : DatabaseService(configurer, connectionProvider) {
+
+class CertificateDecodeConsumer(
+    configurer: Configurer,
+    connectionProvider: () -> Connection,
+    meterRegistry: MeterRegistry
+)  : DatabaseService(configurer, connectionProvider, meterRegistry) {
     private val schema = "public"
     private val insertQueryString = """
         INSERT INTO $schema.certificate_decode(keyId, certificate_id, cert_begin_date, cert_expired_date, key_begin_date, key_expired_date, cert_status, org_o, name_cn, department_ou, oid_value, dn_cn_cert)

@@ -1,14 +1,25 @@
 package ru.cbr.ilk.service
 
+import com.zaxxer.hikari.HikariDataSource
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
 import mu.KotlinLogging
 import ru.cbr.ilk.config.Configurer
+import ru.cbr.ilk.config.ConfigurerImpl
+import ru.cbr.ilk.map
 import ru.cbr.ilk.model.dao.StateCertificate
 import java.sql.Connection
-import ru.cbr.ilk.map
 
 private val logger = KotlinLogging.logger {}
 
-class StateCertificateProvider  (configurer:Configurer, connectionProvider: () -> Connection) : DatabaseService(configurer, connectionProvider) {
+
+class StateCertificateProvider  (configurer:Configurer, connectionProvider: () -> Connection,
+                                 meterRegistry: MeterRegistry
+) : DatabaseService(configurer, connectionProvider, meterRegistry) {
+
+
+
+
     private val schema = "public"
     private val queryString = """
         SELECT s.certificate_id, t.payload
@@ -19,8 +30,15 @@ class StateCertificateProvider  (configurer:Configurer, connectionProvider: () -
         LIMIT $batchSize
     """.trimIndent()
 
+
+
+
     fun get(): List<StateCertificate> = getConnection()
         ?.use {conn ->
+            count = count?.plus(1)
+            logger.info {"sdmsld ===== " + count}
+            val config: Configurer = ConfigurerImpl()
+            count?.apply(config::getTotalNumberOfProcessedCertificates)
             conn.createStatement()
                 .use { st ->
                     st.executeQuery(queryString)

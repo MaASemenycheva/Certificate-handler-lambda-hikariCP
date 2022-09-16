@@ -24,9 +24,18 @@ services:
     volumes:
       - volume:/var/lib/postgresql/data
     environment:
+      - DS_SERVER_NAMES=localhost
+      - DS_PORT_NUMBERS=5432
+      - DS_DATABASE_NAME=cert_test
+      - DS_USER=postgres
+      - DS_PASSWORD=admin
+      - DS_BATCH_SIZE=10
+      - DS_VALIDITY_TIMEOUT=10
+      - DS_POLLING_INTERVAL=10
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=spring_boot_postgres_db
+
 networks:
   network:
 

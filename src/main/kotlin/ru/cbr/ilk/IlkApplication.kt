@@ -1,37 +1,47 @@
 package ru.cbr.ilk
 
+//import io.micrometer.core.instrument.Counter
 import com.zaxxer.hikari.HikariDataSource
+import io.micrometer.core.annotation.Timed
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import ru.cbr.ilk.config.Configurer
 import ru.cbr.ilk.config.ConfigurerImpl
+import ru.cbr.ilk.model.converter.stateCertificateToCertificateDecode
 import ru.cbr.ilk.service.CertificateDecodeConsumer
 import ru.cbr.ilk.service.StateCertificateProvider
 import java.sql.Connection
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
-import org.postgresql.ds.PGSimpleDataSource
-import ru.cbr.ilk.model.converter.stateCertificateToCertificateDecode
+
 
 private val logger = KotlinLogging.logger{}
 
 @SpringBootApplication
 class IlkApplication
 
+
+
+
+@Timed
 fun main(args: Array<String>) {
 	runApplication<IlkApplication>(*args)
-
 	try {
 		val config: Configurer = ConfigurerImpl()
 //		val connectionProvider: () -> Connection = PGSimpleDataSource().apply(config::configure)::getConnection
 		val hikariConnectionProvider: () -> Connection = HikariDataSource().apply(config::hikariConfigure)::getConnection
-		val provider = StateCertificateProvider(config, hikariConnectionProvider)
-		val consumer = CertificateDecodeConsumer(config, hikariConnectionProvider)
-
+		val meterRegistry = SimpleMeterRegistry()
+		val countOfCert = 0
+		val provider = StateCertificateProvider(config, hikariConnectionProvider, meterRegistry)
+		val consumer = CertificateDecodeConsumer(config, hikariConnectionProvider, meterRegistry)
+//		10.apply (config::getTotalNumberOfProcessedCertificates)
 		Executors.newSingleThreadScheduledExecutor()
 			.scheduleWithFixedDelay({
+
 				try {
 					val jsdj = provider.get()
 					logger.info { "sdlmsldms" + jsdj[0].payload}

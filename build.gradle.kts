@@ -41,6 +41,11 @@ dependencies {
 
 	//Test
 	implementation(kotlin("test"))
+
+
+	implementation("io.prometheus:simpleclient:0.16.0")
+	implementation("io.prometheus:simpleclient_hotspot:0.16.0")
+
 }
 
 tasks.withType<KotlinCompile> {
